@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高考英文必備搭配 · 閃卡版</title>
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Microsoft JhengHei", sans-serif;
+}
+body {
+  background: #f5f7fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+.container {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+.flashcard {
+  width: 100%;
+  height: 380px;
+  perspective: 1000px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.card-front {
+  color: #2c3e50;
+}
+.card-back {
+  transform: rotateY(180deg);
+  color: #34495e;
+  text-align: left;
+  padding: 35px 30px;
+}
+.phrase {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.chinese {
+  font-size: 18px;
+  color: #7f8c8d;
+}
+.example-en {
+  font-size: 17px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.example-zh {
+  font-size: 16px;
+  color: #7f8c8d;
+  line-height: 1.5;
+}
+.controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+button {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #3498db;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+button:hover {
+  background: #2980b9;
+}
+.counter {
+  margin: 10px 0;
+  color: #7f8c8d;
+  font-size: 15px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="counter" id="counter">1 / 總卡片數</div>
+  <div class="flashcard" id="flashcard">
+    <div class="card-inner" id="cardInner">
+      <div class="card-front" id="front"></div>
+      <div class="card-back" id="back"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="prevCard()">上一張</button>
+    <button onclick="nextCard()">下一張</button>
+  </div>
+</div>
+
+<script>
+const cards = [
+  {
+    phrase: "take part in",
+    zh: "參加",
+    example: "We should take part in more outdoor activities.",
+    trans: "我們應該多參加戶外活動。"
+  },
+  {
+    phrase: "take care of",
+    zh: "照顧",
+    example: "She has to take care of her little brother.",
+    trans: "她必須照顧她的弟弟。"
+  },
+  {
+    phrase: "take place",
+    zh: "發生、舉行",
+    example: "The sports meeting will take place next week.",
+    trans: "運動會將於下週舉行。"
+  },
+  {
+    phrase: "take up",
+    zh: "佔據；開始從事",
+    example: "Reading takes up most of my free time.",
+    trans: "閱讀佔據了我大部分空閒時間。"
+  },
+  {
+    phrase: "take off",
+    zh: "起飛；脫下",
+    example: "The plane will take off in ten minutes.",
+    trans: "飛機將在十分鐘後起飛。"
+  },
+  {
+    phrase: "take on",
+    zh: "承擔；呈現",
+    example: "He is ready to take on new challenges.",
+    trans: "他已準備好承擔新的挑戰。"
+  },
+  {
+    phrase: "make progress",
+    zh: "取得進步",
+    example: "You will make progress if you keep practicing.",
+    trans: "如果你持續練習，就會取得進步。"
+  },
+  {
+    phrase: "make a decision",
+    zh: "做決定",
+    example: "It’s hard for him to make a decision quickly.",
+    trans: "他很難快速做決定。"
+  },
+  {
+    phrase: "make a mistake",
+    zh: "犯錯",
+    example: "Everyone may make a mistake sometimes.",
+    trans: "每個人有時都可能犯錯。"
+  },
+  {
+    phrase: "make full use of",
+    zh: "充分利用",
+    example: "We should make full use of every chance to learn.",
+    trans: "我們應該充分利用每個學習機會。"
+  },
+  {
+    phrase: "make up one’s mind",
+    zh: "下定決心",
+    example: "She has made up her mind to study abroad.",
+    trans: "她已下定決心出國留學。"
+  },
+  {
+    phrase: "put off",
+    zh: "推遲",
+    example: "Never put off what you can do today till tomorrow.",
+    trans: "絕不要把今天能做的事推到明天。"
+  },
+  {
+    phrase: "put up",
+    zh: "張貼；舉起",
+    example: "They will put up some posters on the wall.",
+    trans: "他們會在牆上張貼一些海報。"
+  },
+  {
+    phrase: "put on",
+    zh: "穿上；上演",
+    example: "Put on your coat; it’s cold outside.",
+    trans: "穿上外套，外面很冷。"
+  },
+  {
+    phrase: "put out",
+    zh: "撲滅",
+    example: "The firemen tried their best to put out the fire.",
+    trans: "消防員盡力撲滅了火災。"
+  },
+  {
+    phrase: "get on/along with",
+    zh: "與…相處",
+    example: "He gets along well with his classmates.",
+    trans: "他和同班同學相處得很好。"
+  },
+  {
+    phrase: "get up",
+    zh: "起床",
+    example: "I usually get up at six in the morning.",
+    trans: "我通常早上六點起床。"
+  },
+  {
+    phrase: "get over",
+    zh: "克服",
+    example: "It takes time to get over a bad habit.",
+    trans: "改掉壞習慣需要時間。"
+  },
+  {
+    phrase: "get used to",
+    zh: "習慣於",
+    example: "You will soon get used to the life here.",
+    trans: "你很快就會習慣這裡的生活。"
+  },
+  {
+    phrase: "get in touch with",
+    zh: "聯繫",
+    example: "Please get in touch with me as soon as possible.",
+    trans: "請盡快與我聯繫。"
+  },
+  {
+    phrase: "give up",
+    zh: "放棄",
+    example: "Don’t give up even if you fail.",
+    trans: "即使失敗也不要放棄。"
+  },
+  {
+    phrase: "give away",
+    zh: "贈送；洩露",
+    example: "He gave away some books to the poor children.",
+    trans: "他捐了一些書給貧困兒童。"
+  },
+  {
+    phrase: "give in",
+    zh: "屈服",
+    example: "He refused to give in to difficulties.",
+    trans: "他拒絕向困難屈服。"
+  },
+  {
+    phrase: "look forward to",
+    zh: "期待",
+    example: "I’m looking forward to your reply.",
+    trans: "我期待你的回覆。"
+  },
+  {
+    phrase: "look after",
+    zh: "照顧",
+    example: "Could you look after my cat while I’m away?",
+    trans: "我不在時你能照顧我的貓嗎？"
+  },
+  {
+    phrase: "look up",
+    zh: "查閱",
+    example: "You can look up the new word in the dictionary.",
+    trans: "你可以在字典裡查這個新單字。"
+  },
+  {
+    phrase: "look through",
+    zh: "瀏覽",
+    example: "He looked through the newspaper before breakfast.",
+    trans: "他早餐前瀏覽了報紙。"
+  },
+  {
+    phrase: "pay attention to",
+    zh: "注意",
+    example: "Please pay attention to your pronunciation.",
+    trans: "請注意你的發音。"
+  },
+  {
+    phrase: "devote…to…",
+    zh: "致力於",
+    example: "He devoted himself to teaching.",
+    trans: "他致力於教學工作。"
+  },
+  {
+    phrase: "be used to doing",
+    zh: "習慣於",
+    example: "She is used to getting up early.",
+    trans: "她習慣早起。"
+  },
+  {
+    phrase: "lead to",
+    zh: "導致",
+    example: "Carelessness often leads to mistakes.",
+    trans: "粗心常常導致錯誤。"
+  },
+  {
+    phrase: "stick to",
+    zh: "堅持",
+    example: "You should stick to your dream.",
+    trans: "你應該堅持你的夢想。"
+  },
+  {
+    phrase: "contribute to",
+    zh: "促成；有助於",
+    example: "Hard work contributes to success.",
+    trans: "努力有助於成功。"
+  },
+  {
+    phrase: "be proud of",
+    zh: "為…驕傲",
+    example: "We are proud of our country.",
+    trans: "我們為我們的國家感到驕傲。"
+  },
+  {
+    phrase: "be responsible for",
+    zh: "對…負責",
+    example: "You should be responsible for your own actions.",
+    trans: "你應該對自己的行為負責。"
+  },
+  {
+    phrase: "be famous/known for",
+    zh: "因…出名",
+    example: "This city is famous for its beautiful scenery.",
+    trans: "這座城市以美麗的風景出名。"
+  },
+  {
+    phrase: "be busy with/doing",
+    zh: "忙於",
+    example: "He is busy preparing for the exam.",
+    trans: "他正忙於準備考試。"
+  },
+  {
+    phrase: "depend on",
+    zh: "依靠",
+    example: "We shouldn’t always depend on our parents.",
+    trans: "我們不應該總是依靠父母。"
+  },
+  {
+    phrase: "focus on",
+    zh: "集中於",
+    example: "Please focus on your study.",
+    trans: "請專心於你的學業。"
+  },
+  {
+    phrase: "prevent/stop…from…",
+    zh: "阻止",
+    example: "We must stop him from making such a mistake.",
+    trans: "我們必須阻止他犯這樣的錯。"
+  },
+  {
+    phrase: "protect…from…",
+    zh: "保護免受",
+    example: "We need to protect children from danger.",
+    trans: "我們需要保護孩子遠離危險。"
+  },
+  {
+    phrase: "play an important role in",
+    zh: "在…起重要作用",
+    example: "Confidence plays an important role in our life.",
+    trans: "自信在我們生活中起重要作用。"
+  },
+  {
+    phrase: "broaden one’s horizons",
+    zh: "開闊眼界",
+    example: "Traveling can broaden our horizons.",
+    trans: "旅行可以開闊我們的眼界。"
+  },
+  {
+    phrase: "enrich one’s knowledge",
+    zh: "豐富知識",
+    example: "Reading enriches our knowledge greatly.",
+    trans: "閱讀極大地豐富我們的知識。"
+  },
+  {
+    phrase: "build up one’s confidence",
+    zh: "增強自信",
+    example: "Practice helps build up our confidence.",
+    trans: "練習有助於增強我們的自信。"
+  },
+  {
+    phrase: "keep a balanced diet",
+    zh: "保持均衡飲食",
+    example: "It’s important to keep a balanced diet.",
+    trans: "保持均衡飲食很重要。"
+  },
+  {
+    phrase: "form a good habit",
+    zh: "養成好習慣",
+    example: "We should form a good habit of reading.",
+    trans: "我們應該養成閱讀的好習慣。"
+  },
+  {
+    phrase: "attach great importance to",
+    zh: "重視",
+    example: "We should attach great importance to health.",
+    trans: "我們應該重視健康。"
+  },
+  {
+    phrase: "as far as I’m concerned",
+    zh: "在我看來",
+    example: "As far as I’m concerned, health is more important.",
+    trans: "在我看來，健康更重要。"
+  },
+  {
+    phrase: "in my opinion",
+    zh: "在我看來",
+    example: "In my opinion, we should learn to be thankful.",
+    trans: "在我看來，我們應該學會感恩。"
+  },
+  {
+    phrase: "on the whole",
+    zh: "總的來說",
+    example: "On the whole, this is a good plan.",
+    trans: "總的來說，這是一個不錯的計畫。"
+  },
+  {
+    phrase: "as a result",
+    zh: "結果",
+    example: "He worked hard. As a result, he succeeded.",
+    trans: "他努力學習，結果成功了。"
+  },
+  {
+    phrase: "in addition",
+    zh: "此外",
+    example: "In addition, we need to save water.",
+    trans: "此外，我們需要節約用水。"
+  },
+  {
+    phrase: "what’s more",
+    zh: "而且",
+    example: "What’s more, it’s good for our health.",
+    trans: "而且，這對我們的健康有益。"
+  },
+  {
+    phrase: "last but not least",
+    zh: "最後但同樣重要",
+    example: "Last but not least, we must keep trying.",
+    trans: "最後但同樣重要，我們必須堅持努力。"
+  },
+  {
+    phrase: "It is no use doing…",
+    zh: "做…沒用",
+    example: "It is no use crying over spilt milk.",
+    trans: "覆水難收，後悔沒用。"
+  },
+  {
+    phrase: "It takes sb. some time to do…",
+    zh: "做…花時間",
+    example: "It takes me an hour to walk to school.",
+    trans: "我走路去學校要花一小時。"
+  },
+  {
+    phrase: "There is no doubt that…",
+    zh: "毫無疑問",
+    example: "There is no doubt that health is important.",
+    trans: "毫無疑問，健康很重要。"
+  },
+  {
+    phrase: "The reason why…is that…",
+    zh: "…的原因是",
+    example: "The reason why he succeeded is that he worked hard.",
+    trans: "他成功的原因是他很努力。"
+  },
+  {
+    phrase: "not only…but also…",
+    zh: "不但…而且",
+    example: "He is not only clever but also hard-working.",
+    trans: "他不但聰明而且用功。"
+  },
+  {
+    phrase: "so…that…",
+    zh: "如此…以至於",
+    example: "The movie is so moving that I cried.",
+    trans: "這部電影如此感人以至於我哭了。"
+  },
+  {
+    phrase: "too…to…",
+    zh: "太…而不能",
+    example: "The box is too heavy to carry.",
+    trans: "這個箱子太重了搬不動。"
+  },
+  {
+    phrase: "would rather do…than do…",
+    zh: "寧願…也不",
+    example: "I would rather stay at home than go out.",
+    trans: "我寧願待在家也不出去。"
+  }
+];
+
+let current = 0;
+const cardInner = document.getElementById("cardInner");
+const front = document.getElementById("front");
+const back = document.getElementById("back");
+const counter = document.getElementById("counter");
+
+function updateCard() {
+  const c = cards[current];
+  front.innerHTML = `
+    <div class="phrase">${c.phrase}</div>
+    <div class="chinese">${c.zh}</div>
+  `;
+  back.innerHTML = `
+    <div class="example-en">${c.example}</div>
+    <div class="example-zh">${c.trans}</div>
+  `;
+  cardInner.classList.remove("flipped");
+  counter.textContent = `${current + 1} / ${cards.length}`;
+}
+
+document.getElementById("flashcard").addEventListener("click", () => {
+  cardInner.classList.toggle("flipped");
+});
+
+function nextCard() {
+  current = (current + 1) % cards.length;
+  updateCard();
+}
+
+function prevCard() {
+  current = (current - 1 + cards.length) % cards.length;
+  updateCard();
+}
+
+updateCard();
+</script>
+</body>
+</html>
